@@ -1,0 +1,9 @@
+/app
+/result.txt
+/build/
+/!/include
+/!/src
+/!input.txt
+/!Makefile
+/.vscode/*
+
