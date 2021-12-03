@@ -15,17 +15,20 @@ int count = 0;
 
 %token <string>   IDENTIFIER
 %token <value>    NUMBER
-%type <value>     expr
+%type <value>     expr lexpr rexpr
 %token yIN yFOR yALL yNEXT yREST yRECORD yWHILE yRECALL yNOOPTIMIZE SYMLP SYMRP yAND yNOT yOR ySEMICOLON SIGNEQ 
-/*      in  for  all  next  rest  record  while  recall  nooptimize   (     )    and  not  or       ;       =  */
+    /*  in  for  all  next  rest  record  while  recall  nooptimize   (     )    and  not  or       ;       =  */
 %left SIGNEQQ SIGNNEQ
-/*      ==     != <>     */ 
+    /*  ==     != <>                                    */ 
 %left SIGNLESS SIGNMORE SIGNLEQ SIGNMEQ
-/*        <        >       <=      >=     */
+    /*   <        >       <=      >=                    */
 %left SIGNPLUS SIGNMINUS
-/*       +         -      */
+    /*   +         -                                    */
 %left SIGNMULT SIGNDIV
-/*        *       /      */
+    /*   *       /                                      */
+%left SIGNPOW
+    /*   ^                                              */
+
 %start program
 
 %%
@@ -35,7 +38,7 @@ program:
 
 stat    : error {HandleError("wrong syntax");}
         | yRECALL scope forexpr whileexpr nooptim inn 
-        | IDENTIFIER { var = VarGet($1, &@1);} SIGNEQ expr { if ($4 == -1) setvalnull=1; VarSetValue(var, $4);} 
+        | IDENTIFIER { var = VarGet($1, &@1);} SIGNEQ rexpr { if ($4 == -1) setvalnull=1; VarSetValue(var, $4);} 
         | IDENTIFIER error{HandleError("wrong identifier");}
         ;
 
@@ -60,25 +63,31 @@ inn :
 
 nooptim :
         | yNOOPTIMIZE
-        ;     
+        ;
 
-lexpr   : SYMLP lexpr SYMRP
-        | expr SIGNEQQ expr
-        | expr SIGNNEQ expr
-        | expr SIGNLESS expr
-        | expr SIGNMORE expr
-        | expr SIGNLEQ expr
-        | expr SIGNMEQ expr
-        | expr yAND expr
-        | expr yOR expr
-        | expr yNOT expr ;
+rexpr   : expr
+        | lexpr
+        ;
+
+lexpr   : SYMLP lexpr SYMRP     {   $$=$2;     }
+        | expr SIGNEQQ expr     {   $$=$1==$3; }
+        | expr SIGNNEQ expr     {   $$=$1!=$3; }
+        | expr SIGNLESS expr    {   $$=$1<$3 ; }
+        | expr SIGNMORE expr    {   $$=$1>$3 ; }
+        | expr SIGNLEQ expr     {   $$=$1<=$3; }
+        | expr SIGNMEQ expr     {   $$=$1>=$3; }
+        | expr yAND expr        {   $$=$1&&$3; }
+        | expr yOR expr         {   $$=$1||$3; }
+        | yNOT expr             {   $$=!$2   ; }
+        ;
      
 expr    : SYMLP expr SYMRP      {   $$=  $2;  }
         | SIGNMINUS expr        {   $$= -$2;  }
         | expr SIGNPLUS expr    {   $$=ReduceAdd($1, $3, &@3);  }  
         | expr SIGNMINUS expr   {   $$=ReduceSub($1, $3, &@3);  }  
         | expr SIGNMULT expr    {   $$=ReduceMult($1, $3, &@3); }  
-        | expr SIGNDIV  expr    {   $$=ReduceDiv($1, $3, &@3);  }  
+        | expr SIGNDIV expr     {   $$=ReduceDiv($1, $3, &@3);  }  
+        | expr SIGNPOW expr     {   $$=ReducePow($1, $3, &@3);  }
         | NUMBER                {   $$= $1;  }     
         | NUMBER error          {   HandleError("wrong number"); $$=-1; }
         | error                 {   HandleError("wrong arifmetic expression"); $$=-1;  }

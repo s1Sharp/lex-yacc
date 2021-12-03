@@ -1,4 +1,6 @@
 #include "recall.h"
+#include <math.h>
+#include <stdlib.h>
 
 int overflow = 0;
 
@@ -61,3 +63,21 @@ int ReduceDiv(int a, int b, YYLTYPE *bloc) {
     }
   return a / b;
 }
+
+//reduce pow with check int overflow
+extern
+int ReducePow(int a, int b, YYLTYPE *bloc) {
+    int sign = 1;
+	if(a == 0 || b == 0) return 0;
+	if(a < 0) { a = -a; sign = -sign; }
+	if(b < 0) { b = -b; sign = -sign; }
+	if((int)pow(INT_MAX, (double)1/b) < a) {
+        PrintError("int overflow! Line %d:c%d to %d:c%d",
+                        bloc->first_line, bloc->first_column,
+                        bloc->last_line, bloc->last_column); 
+        overflow = 1; 
+		return (sign > 0) ? INT_MAX : INT_MIN;
+	}
+	return (int)pow((int)a, (int)b);
+}
+

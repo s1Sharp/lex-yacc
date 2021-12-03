@@ -3,7 +3,7 @@
 %{
 #include "recall.h"
 
-#define IDENTIFIER_MAX_LEN 12
+#define IDENTIFIER_MAX_LEN 32
 
 #define YY_INPUT(buf,result,max_size)  {\
     result = GetNextChar(buf, max_size); \
@@ -48,6 +48,7 @@ not         [Nn][Oo][Tt]
 \+              { NewToken(yytext);  return(SIGNPLUS);}
 \-              { NewToken(yytext);  return(SIGNMINUS);}
 \*              { NewToken(yytext);  return(SIGNMULT);}
+\^              { NewToken(yytext);  return(SIGNPOW);}
 \<              { NewToken(yytext);  return(SIGNLESS);}
 \>              { NewToken(yytext);  return(SIGNMORE);}
 \=              { NewToken(yytext);  return(SIGNEQ);}

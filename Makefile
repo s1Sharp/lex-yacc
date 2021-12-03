@@ -7,7 +7,7 @@ DEBUG ?=
 CC = gcc 
 PROGRAM  =  app
 CFLAGS = -I$(hdr) -I$(build) -lfl -o 
-SRC = $(build)*.c $(src)*.c 
+SRC = $(build)*.c $(src)*.c -lm
 
 .PHONY: all clean run result
 

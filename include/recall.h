@@ -25,6 +25,7 @@ extern int ReduceAdd(int, int, YYLTYPE*);
 extern int ReduceSub(int, int, YYLTYPE*);
 extern int ReduceMult(int, int, YYLTYPE*);
 extern int ReduceDiv(int, int, YYLTYPE*);
+extern int ReducePow(int, int, YYLTYPE*);
 
 
 //file var.c
