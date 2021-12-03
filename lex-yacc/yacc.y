@@ -15,9 +15,14 @@ int count = 0;
 
 %token <string>   IDENTIFIER
 %token <value>    NUMBER
-%type <value>     expr lexpr rexpr
+%type <value>     expr
 %token yIN yFOR yALL yNEXT yREST yRECORD yWHILE yRECALL yNOOPTIMIZE SYMLP SYMRP yAND yNOT yOR ySEMICOLON SIGNEQ 
     /*  in  for  all  next  rest  record  while  recall  nooptimize   (     )    and  not  or       ;       =  */
+
+%left yOR
+%left yAND
+%left yNOT
+
 %left SIGNEQQ SIGNNEQ
     /*  ==     != <>                                    */ 
 %left SIGNLESS SIGNMORE SIGNLEQ SIGNMEQ
@@ -37,8 +42,8 @@ program:
          program stat ySEMICOLON {count = 0; };
 
 stat    : error {HandleError("wrong syntax");}
-        | yRECALL scope forexpr whileexpr nooptim inn 
-        | IDENTIFIER { var = VarGet($1, &@1);} SIGNEQ rexpr { if ($4 == -1) setvalnull=1; VarSetValue(var, $4);} 
+        | yRECALL scope forexpr whileexpr nooptim inn
+        | IDENTIFIER { var = VarGet($1, &@1);} SIGNEQ expr { if ($4 == -1)  setvalnull=1; VarSetValue(var, $4);} 
         | IDENTIFIER error{HandleError("wrong identifier");}
         ;
 
@@ -50,11 +55,11 @@ scope   :
         ;
 
 forexpr :                
-        |  yFOR lexpr
+        |  yFOR expr
         ;
   
 whileexpr   :               
-            | yWHILE lexpr
+            | yWHILE expr
             ;
 
 inn :
@@ -65,11 +70,19 @@ nooptim :
         | yNOOPTIMIZE
         ;
 
-rexpr   : expr
-        | lexpr
-        ;
-
-lexpr   : SYMLP lexpr SYMRP     {   $$=$2;     }
+     
+expr    : SYMLP expr SYMRP      {   $$=  $2;  }
+        | SIGNMINUS expr        {   $$= -$2;  }
+        | expr SIGNPLUS expr    {   $$=ReduceAdd($1, $3, &@3);  }  
+        | expr SIGNMINUS expr   {   $$=ReduceSub($1, $3, &@3);  }  
+        | expr SIGNMULT expr    {   $$=ReduceMult($1, $3, &@3); }  
+        | expr SIGNDIV expr     {   $$=ReduceDiv($1, $3, &@3);  }  
+        | expr SIGNPOW expr     {   printf("\nstepen %d %d",$1,$3);$$=ReducePow($1, $3, &@3);  }
+        | NUMBER                {   $$= $1;  }     
+        | NUMBER error          {   HandleError("wrong number"); $$=-1; }
+        | error                 {   HandleError("wrong arifmetic expression"); $$=-1;  }
+        | IDENTIFIER error      {   HandleError("wrong identifier"); $$=-1; }
+        | IDENTIFIER            {   $$ = VarGetValue($1, &@1); }
         | expr SIGNEQQ expr     {   $$=$1==$3; }
         | expr SIGNNEQ expr     {   $$=$1!=$3; }
         | expr SIGNLESS expr    {   $$=$1<$3 ; }
@@ -79,20 +92,6 @@ lexpr   : SYMLP lexpr SYMRP     {   $$=$2;     }
         | expr yAND expr        {   $$=$1&&$3; }
         | expr yOR expr         {   $$=$1||$3; }
         | yNOT expr             {   $$=!$2   ; }
-        ;
-     
-expr    : SYMLP expr SYMRP      {   $$=  $2;  }
-        | SIGNMINUS expr        {   $$= -$2;  }
-        | expr SIGNPLUS expr    {   $$=ReduceAdd($1, $3, &@3);  }  
-        | expr SIGNMINUS expr   {   $$=ReduceSub($1, $3, &@3);  }  
-        | expr SIGNMULT expr    {   $$=ReduceMult($1, $3, &@3); }  
-        | expr SIGNDIV expr     {   $$=ReduceDiv($1, $3, &@3);  }  
-        | expr SIGNPOW expr     {   $$=ReducePow($1, $3, &@3);  }
-        | NUMBER                {   $$= $1;  }     
-        | NUMBER error          {   HandleError("wrong number"); $$=-1; }
-        | error                 {   HandleError("wrong arifmetic expression"); $$=-1;  }
-        | IDENTIFIER error      {   HandleError("wrong identifier"); $$=-1; }
-        | IDENTIFIER            {   $$ = VarGetValue($1, &@1); }
         ;        
 %%
 
@@ -103,14 +102,6 @@ if(count==0)
 count++;
 }
 
-/*
-static int
-yyreport_syntax_error (const yypcontext_t *ctx)
-{
-  int res = 0;
-  return res;
-}
-*/
 
 extern 
 void yyerror(char *s)
