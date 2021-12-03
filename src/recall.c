@@ -190,9 +190,9 @@ int main(int argc, char *argv[]) {
 
 	free(buffer);
 	fclose(file);
-	printf("\nfinal content of variables\n");
+	printf("\n\n\t\tfinal content of variables\n");
 
 	//watch all variables
-	DumpAllVariables("  ",errorcount);
+	DumpAllVariables(errorcount);
 	return 0;
 }

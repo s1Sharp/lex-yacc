@@ -39,7 +39,7 @@ typedef struct Variable {
 extern Variable *VarGet(char*, YYLTYPE*);
 extern void VarSetValue(Variable*, int);
 extern int VarGetValue(char*, YYLTYPE*);
-extern void DumpAllVariables(char* prefix, int errorcount);
+extern void DumpAllVariables(int errorcount);
 
 
 #endif
