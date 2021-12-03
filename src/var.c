@@ -102,13 +102,6 @@ void VarSetValue(Variable* var, int value) {
         setvalnull = 0;
         return;
     }
-    if ( overflow == 1)
-    {
-        var->value = 0;   
-        var->init = 0; 
-        overflow = 0;
-        return;
-    }
     var->value = value;   
     var->init = 1;
     return;
@@ -125,31 +118,37 @@ int VarGetValue(char* varname, YYLTYPE* bloc) {
     if (var == NULL) {
         PrintError("reference to unknown variable '%s'", varname);
         var = addVar(varname);
-        if (var == NULL)
-            return 0;
-    }
-    if (var->init == 0)
-        PrintError("variable not init '%s'", varname);
         return 0;
+    }
+    if (var->init == 0){
+        PrintError("variable not init %s", varname);
+        setvalnull = 1;
+        return 0;
+    }
     return var->value;
 }  
 
 
 extern
-void DumpAllVariables(char* prefix, int errorcount) {
+void DumpAllVariables(int errorcount) {
     int i,j;
     int used = 0;
-    printf("%s\tName----------------- Value----------\n", prefix);
+    char formatsymbols[MAX_NAME_LEN-3];
+    for (int i =0;i<MAX_NAME_LEN-3;i++)
+    {
+        formatsymbols[i] = '-';
+    }
+    printf("\tName%.*s Value----------\n",MAX_NAME_LEN-3,formatsymbols);
     for (i = 0; i < N-1; i++) {
         for (j = 0; j < MAXVARS; j++) {
             if (vars[i][j].init == 1)
             {
-            printf("%d\t: %-20.20s: %d\n", i*MAXVARS+j+1,
+            printf("%d\t: %-*.*s: %d\n", i*MAXVARS+j+1,MAX_NAME_LEN,MAX_NAME_LEN,
                 vars[i][j].name, vars[i][j].value);
                 used++;
             }
             else 
-            printf("%d\t: %-20.20s: %s\n", i*MAXVARS+j+1,
+            printf("%d\t: %-*.*s: %s\n", i*MAXVARS+j+1,MAX_NAME_LEN,MAX_NAME_LEN,
                 vars[i][j].name, "NULL");
         }
     }
@@ -157,18 +156,18 @@ void DumpAllVariables(char* prefix, int errorcount) {
         for (j = 0; j < nVars; j++) {
             if (vars[i][j].init == 1)
             {
-            printf("%d\t: %-20.20s: %d\n", i*MAXVARS+j+1,
+            printf("%d\t: %-*.*s: %d\n", i*MAXVARS+j+1,MAX_NAME_LEN,MAX_NAME_LEN,
                 vars[i][j].name, vars[i][j].value);
                 used++;
             }
             else 
-            printf("%d\t: %-20.20s: %s\n", i*MAXVARS+j+1,
+            printf("%d\t: %-*.*s: %s\n", i*MAXVARS+j+1,MAX_NAME_LEN,MAX_NAME_LEN,
                 vars[i][j].name, "NULL");
         }
     }
-    printf("==== count of variables - %d ====\n", (N-1)*MAXVARS+j + 1);
+    printf("==== count of variables - %d ====\n", (N-1)*MAXVARS+j );
     printf("==== count of used var - %d ====\n", used);
-    printf("==== count of unused var - %d ====\n", (N-1)*MAXVARS+j + 1 - used);
+    printf("==== count of unused var - %d ====\n", (N-1)*MAXVARS+j - used);
     printf("==== count of errors - %d ====\n",errorcount);
     return;
 }
