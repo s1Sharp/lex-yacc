@@ -2,12 +2,13 @@ ly = lex-yacc/
 src = src/
 hdr = include/
 build = build/
-DEBUG ?= 
 
 CC = gcc 
 PROGRAM  =  app
 CFLAGS = -I$(hdr) -I$(build) -lfl -o 
 SRC = $(build)*.c $(src)*.c -lm
+DEBUG ?= 
+FILE = input.txt
 
 .PHONY: all clean run result
 
@@ -36,7 +37,7 @@ mkdir:
 	mkdir -p $(build)
 
 run:
-	cat input.txt | ./app $(DEBUG)> result.txt
+	./app $(DEBUG) $(FILE) > result.txt
 
 result:
 	cat result.txt
