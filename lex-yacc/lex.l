@@ -66,11 +66,12 @@ not         [Nn][Oo][Tt]
               }
 {Identifier}  {
                 if	(yyleng > IDENTIFIER_MAX_LEN) 
-					PrintError("the name of variable is too long");
+				          	PrintError("the name of variable is too long, Max lenght = %d, your lenght = %d",
+                              IDENTIFIER_MAX_LEN, yyleng);
                 else{
-                	yylval.string = malloc(strlen(yytext)+1);
-                	strcpy(yylval.string, yytext);NewToken(yytext); 
-                	return (IDENTIFIER);
+                    yylval.string = malloc(strlen(yytext)+1);
+                    strcpy(yylval.string, yytext);NewToken(yytext); 
+                    return (IDENTIFIER);
                 }
               }
 

@@ -37,9 +37,8 @@ int count = 0;
 %start program
 
 %%
-program: 
-         stat ySEMICOLON {count = 0; } |
-         program stat ySEMICOLON {count = 0; };
+program : stat ySEMICOLON {count = 0; setvalnull=0; } 
+        | program stat ySEMICOLON {count = 0; setvalnull=0; };
 
 stat    : error {HandleError("wrong syntax");}
         | yRECALL scope forexpr whileexpr nooptim inn
@@ -77,11 +76,11 @@ expr    : SYMLP expr SYMRP      {   $$=  $2;  }
         | expr SIGNMINUS expr   {   $$=ReduceSub($1, $3, &@3);  }  
         | expr SIGNMULT expr    {   $$=ReduceMult($1, $3, &@3); }  
         | expr SIGNDIV expr     {   $$=ReduceDiv($1, $3, &@3);  }  
-        | expr SIGNPOW expr     {   printf("\nstepen %d %d",$1,$3);$$=ReducePow($1, $3, &@3);  }
+        | expr SIGNPOW expr     {   $$=ReducePow($1, $3, &@3);  }
         | NUMBER                {   $$= $1;  }     
         | NUMBER error          {   HandleError("wrong number"); $$=-1; }
         | error                 {   HandleError("wrong arifmetic expression"); $$=-1;  }
-        | IDENTIFIER error      {   HandleError("wrong identifier"); $$=-1; }
+        | IDENTIFIER error      {   HandleError("wrong identifier"); $$=-1; setvalnull=0; }
         | IDENTIFIER            {   $$ = VarGetValue($1, &@1); }
         | expr SIGNEQQ expr     {   $$=$1==$3; }
         | expr SIGNNEQ expr     {   $$=$1!=$3; }
