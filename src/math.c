@@ -1,6 +1,4 @@
 #include "recall.h"
-#include <math.h>
-#include <stdlib.h>
 
 extern int setvalnull;
 
