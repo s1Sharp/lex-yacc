@@ -1,4 +1,5 @@
 var_a = 0;
+lel = ke*6;
 a=5;
 pow2stepen3 = 2^3;
 pow2stepen10 = 22^4;
