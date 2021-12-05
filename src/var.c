@@ -118,6 +118,7 @@ int VarGetValue(char* varname, YYLTYPE* bloc) {
     if (var == NULL) {
         PrintError("reference to unknown variable '%s'", varname);
         var = addVar(varname);
+        setvalnull = 1;
         return 0;
     }
     if (var->init == 0){
