@@ -42,7 +42,7 @@ program : stat ySEMICOLON {count = 0; setvalnull=0; }
 
 stat    : error {HandleError("wrong syntax");}
         | yRECALL scope forexpr whileexpr nooptim inn
-        | IDENTIFIER { var = VarGet($1, &@1);} SIGNEQ expr { if ($4 == -1)  setvalnull=1; VarSetValue(var, $4);} 
+        | IDENTIFIER { var = VarGet($1, &@1);} SIGNEQ expr { VarSetValue(var, $4);} 
         | IDENTIFIER error{HandleError("wrong identifier");}
         ;
 
@@ -78,9 +78,9 @@ expr    : SYMLP expr SYMRP      {   $$=  $2;  }
         | expr SIGNDIV expr     {   $$=ReduceDiv($1, $3, &@3);  }  
         | expr SIGNPOW expr     {   $$=ReducePow($1, $3, &@3);  }
         | NUMBER                {   $$= $1;  }     
-        | NUMBER error          {   HandleError("wrong number"); $$=-1; }
-        | error                 {   HandleError("wrong arifmetic expression"); $$=-1;  }
-        | IDENTIFIER error      {   HandleError("wrong identifier"); $$=-1; setvalnull=0; }
+        | NUMBER error          {   HandleError("wrong number"); setvalnull=1; }
+        | error                 {   HandleError("wrong arifmetic expression"); setvalnull=1;  }
+        | IDENTIFIER error      {   HandleError("wrong identifier"); setvalnull=1; }
         | IDENTIFIER            {   $$ = VarGetValue($1, &@1); }
         | expr SIGNEQQ expr     {   $$=$1==$3; }
         | expr SIGNNEQ expr     {   $$=$1!=$3; }
