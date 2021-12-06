@@ -3,7 +3,7 @@
 %{
 #include "recall.h"
 
-#define IDENTIFIER_MAX_LEN 32
+#define IDENTIFIER_MAX_LEN 32 
 
 #define YY_INPUT(buf,result,max_size)  {\
     result = GetNextChar(buf, max_size); \
