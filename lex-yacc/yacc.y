@@ -71,6 +71,8 @@ nooptim :
 
      
 expr    : SYMLP expr SYMRP      {   $$=  $2;  }
+        | SYMLP expr error      {   HandleError("wrong expression, forget '(' or ')'"); setvalnull=1;  }
+        | error expr SYMLP      {   HandleError("wrong expression, forget '(' or ')'"); setvalnull=1;  }
         | SIGNMINUS expr        {   $$= -$2;  }
         | expr SIGNPLUS expr    {   $$=ReduceAdd($1, $3, &@3);  }  
         | expr SIGNMINUS expr   {   $$=ReduceSub($1, $3, &@3);  }  
